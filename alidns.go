@@ -10,8 +10,10 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"math"
 	"net/http"
+	"net/http/httputil"
 	"net/url"
 	"reflect"
 	"sort"
@@ -24,6 +26,7 @@ type (
 	Client struct {
 		accessKeyId     string
 		accessKeySecret string
+		debug           bool
 	}
 )
 
@@ -32,6 +35,16 @@ func NewClient(id, secret string) *Client {
 	return &Client{
 		accessKeyId:     id,
 		accessKeySecret: secret,
+		debug:           false,
+	}
+}
+
+// Creates a new client with debug (more information printed to stderr).
+func (client *Client) Debug(debug bool) *Client {
+	return &Client{
+		accessKeyId:     client.accessKeyId,
+		accessKeySecret: client.accessKeySecret,
+		debug:           debug,
 	}
 }
 
@@ -175,11 +188,26 @@ func (client Client) Get(ctx context.Context, params url.Values, dest ...interfa
 	if err != nil {
 		return err
 	}
+	if client.debug {
+		dump, err := httputil.DumpRequestOut(req, true)
+		if err != nil {
+			return err
+		}
+		log.Println(string(dump))
+	}
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		return err
 	}
 	defer resp.Body.Close()
+	if client.debug {
+		dumpBody := strings.Contains(resp.Header.Get("Content-Type"), "json")
+		dump, err := httputil.DumpResponse(resp, dumpBody)
+		if err != nil {
+			return err
+		}
+		log.Println(string(dump))
+	}
 	b, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		return err

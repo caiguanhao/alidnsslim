@@ -22,7 +22,7 @@ func TestSign(t *testing.T) {
 		t.Fatal("Please set ALIDNS_KEY_ID and ALIDNS_KEY_SECRET environment variables.")
 	}
 
-	client := NewClient(keyId, keySecret)
+	client := NewClient(keyId, keySecret).Debug(os.Getenv("DEBUG") == "1")
 
 	ctx := context.Background()
 
