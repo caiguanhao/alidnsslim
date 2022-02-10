@@ -111,6 +111,14 @@ func PageSize(size int, values ...url.Values) url.Values {
 	return merge(params, values...)
 }
 
+// MustGetAll is like GetAll, it gets all paginated resources into destinations
+// and panics if operation fails.
+func (client Client) MustGetAll(ctx context.Context, params url.Values, dest ...interface{}) {
+	if err := client.GetAll(ctx, params, dest...); err != nil {
+		panic(err)
+	}
+}
+
 // GetAll gets all paginated resources into destinations.
 func (client Client) GetAll(ctx context.Context, params url.Values, dest ...interface{}) error {
 	if len(dest) == 1 {
@@ -131,9 +139,23 @@ func (client Client) GetAll(ctx context.Context, params url.Values, dest ...inte
 	return nil
 }
 
+// MustDo is an alias to MustGet and is like Do. Use this to indicate action is
+// destructive.
+func (client Client) MustDo(ctx context.Context, params url.Values, dest ...interface{}) {
+	client.MustGet(ctx, params, dest...)
+}
+
 // Do is an alias to Get. Use this to indicate action is destructive.
 func (client Client) Do(ctx context.Context, params url.Values, dest ...interface{}) error {
 	return client.Get(ctx, params, dest...)
+}
+
+// MustGet is like Get, it gets resources into destinations and panics if
+// operation fails. For paginated resources, use MustGetAll.
+func (client Client) MustGet(ctx context.Context, params url.Values, dest ...interface{}) {
+	if err := client.Get(ctx, params, dest...); err != nil {
+		panic(err)
+	}
 }
 
 // Get gets resources into destinations. For paginated resources, use GetAll.

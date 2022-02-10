@@ -27,9 +27,7 @@ func TestSign(t *testing.T) {
 	ctx := context.Background()
 
 	var domains []string
-	if err := client.GetAll(ctx, GetDomains(PageSize(2)), &domains, "Domains.Domain.*.DomainName"); err != nil {
-		t.Fatal(err)
-	}
+	client.MustGetAll(ctx, GetDomains(PageSize(2)), &domains, "Domains.Domain.*.DomainName")
 
 	if len(domains) == 0 {
 		t.Log("No domains for test")
@@ -39,11 +37,8 @@ func TestSign(t *testing.T) {
 	targetDomain := domains[0]
 
 	var recordId string
-	if err := client.Do(ctx, AddDomainRecord("hello", targetDomain, "TXT", "world"), &recordId, "RecordId"); err != nil {
-		t.Fatal(err)
-	} else {
-		t.Log("Created record with id", recordId)
-	}
+	client.MustDo(ctx, AddDomainRecord("hello", targetDomain, "TXT", "world"), &recordId, "RecordId")
+	t.Log("Created record with id", recordId)
 
 	targetValue := "earth"
 
