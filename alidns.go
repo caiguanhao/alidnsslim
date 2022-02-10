@@ -57,6 +57,15 @@ func (e ResponseError) Error() string {
 	return fmt.Sprintf("%s Error: %s", e.Code, e.Message)
 }
 
+// Generate url.Values from list of keys and values.
+func Params(keysAndValues ...interface{}) url.Values {
+	params := url.Values{}
+	for n := 0; n < len(keysAndValues)/2; n++ {
+		params.Set(fmt.Sprint(keysAndValues[2*n]), fmt.Sprint(keysAndValues[2*n+1]))
+	}
+	return params
+}
+
 // GetDomains generates params with DescribeDomains action.
 func GetDomains(values ...url.Values) url.Values {
 	params := url.Values{}
